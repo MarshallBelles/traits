@@ -3,7 +3,7 @@
 mod tests {
     use digest::{generic_array::GenericArray, Digest};
     use hex_literal::hex;
-    use sha2::Sha256;
+    use sha3::Sha3_256;
     use signature::{
         DigestSigner, DigestVerifier, Error, PrehashSignature, Signature, Signer, Verifier,
     };
@@ -17,7 +17,7 @@ mod tests {
 
     /// Dummy signature which just contains a digest output
     #[derive(Debug)]
-    struct DummySignature(GenericArray<u8, <Sha256 as Digest>::OutputSize>);
+    struct DummySignature(GenericArray<u8, <Sha3_256 as Digest>::OutputSize>);
 
     impl Signature for DummySignature {
         fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
@@ -34,15 +34,15 @@ mod tests {
     }
 
     impl PrehashSignature for DummySignature {
-        type Digest = Sha256;
+        type Digest = Sha3_256;
     }
 
     /// Dummy signer which just returns the message digest as a `DummySignature`
     #[derive(Signer, Default)]
     struct DummySigner {}
 
-    impl DigestSigner<Sha256, DummySignature> for DummySigner {
-        fn try_sign_digest(&self, digest: Sha256) -> Result<DummySignature, Error> {
+    impl DigestSigner<Sha3_256, DummySignature> for DummySigner {
+        fn try_sign_digest(&self, digest: Sha3_256) -> Result<DummySignature, Error> {
             DummySignature::from_bytes(&digest.finalize())
         }
     }
@@ -54,8 +54,8 @@ mod tests {
     #[derive(Verifier, Default)]
     struct DummyVerifier {}
 
-    impl DigestVerifier<Sha256, DummySignature> for DummyVerifier {
-        fn verify_digest(&self, digest: Sha256, signature: &DummySignature) -> Result<(), Error> {
+    impl DigestVerifier<Sha3_256, DummySignature> for DummyVerifier {
+        fn verify_digest(&self, digest: Sha3_256, signature: &DummySignature) -> Result<(), Error> {
             let actual_digest = digest.finalize();
             assert_eq!(signature.as_ref(), actual_digest.as_slice());
             Ok(())
