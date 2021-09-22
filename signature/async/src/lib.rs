@@ -26,10 +26,10 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
-pub use signature::{self, Error, Signature};
+pub use signature_flow::{self, Error, Signature};
 
 #[cfg(feature = "digest")]
-pub use signature::digest::{self, Digest};
+pub use signature_flow::digest::{self, Digest};
 
 use async_trait::async_trait;
 
@@ -55,7 +55,7 @@ where
 impl<S, T> AsyncSigner<S> for T
 where
     S: Signature + Send + 'static,
-    T: signature::Signer<S> + Send + Sync,
+    T: signature_flow::Signer<S> + Send + Sync,
 {
     async fn sign_async(&self, msg: &[u8]) -> Result<S, Error> {
         self.try_sign(msg)
